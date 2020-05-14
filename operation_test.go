@@ -69,6 +69,17 @@ func TestParseAcceptCommentErr(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestMarkdown(t *testing.T) {
+	comment := `/ @description.markdown project_create`
+	operation := NewOperation()
+	operation.parser = New()
+	operation.parser.markdownFileDir = "./"
+	err := operation.ParseComment(comment, nil)
+	assert.Error(t, err)
+}
+
+
+
 func TestParseProduceComment(t *testing.T) {
 	expected := `{
     "produces": [

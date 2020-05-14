@@ -2494,6 +2494,44 @@ func Test(){
 	assert.Equal(t, expected, string(out))
 }
 
+func TestParser_ParseIgnore(t *testing.T) {
+	src := `
+package api
+
+type Child struct {
+	Name string
+}
+
+type Parent struct {
+	Test1 *string  //test1
+	Test2 *Child   //test2
+}
+
+// @Success 200 {object} Parent
+// @Router /api/{id} [get]
+// @internal
+func Test(){
+}
+`
+	f, err := goparser.ParseFile(token.NewFileSet(), "", src, goparser.ParseComments)
+	assert.NoError(t, err)
+
+	p := New()
+	p.ParseType(f)
+	err = p.ParseRouterAPIInfo("", f)
+	assert.NoError(t, err)
+
+	typeSpec := p.TypeDefinitions["api"]["Parent"]
+	err = p.ParseDefinition("api", typeSpec.Name.Name, typeSpec)
+	assert.NoError(t, err)
+
+	//out, err := json.MarshalIndent(p.swagger.Definitions, "", "   ")
+	//assert.NoError(t, err)
+	//assert.Equal(t, expected, string(out))
+}
+
+
+
 func TestParser_ParseStructMapMember(t *testing.T) {
 	src := `
 package api

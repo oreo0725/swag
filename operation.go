@@ -24,7 +24,8 @@ type Operation struct {
 	Path       string
 	spec.Operation
 
-	parser *Parser
+	parser      *Parser
+	ReleaseTags []string
 }
 
 var mimeTypeAliases = map[string]string{
@@ -52,6 +53,7 @@ func NewOperation() *Operation {
 		Operation: spec.Operation{
 			OperationProps: spec.OperationProps{},
 		},
+		ReleaseTags: []string{},
 	}
 }
 
@@ -97,6 +99,12 @@ func (operation *Operation) ParseComment(comment string, astFile *ast.File) erro
 		err = operation.ParseSecurityComment(lineRemainder)
 	case "@deprecated":
 		operation.Deprecate()
+	case "@release":
+		excludeTags := strings.Split(lineRemainder, ",")
+		for _, et := range excludeTags {
+			operation.ReleaseTags = append(operation.ReleaseTags, strings.TrimSpace(et))
+		}
+
 	default:
 		err = operation.ParseMetadata(attribute, lowerAttribute, lineRemainder)
 	}

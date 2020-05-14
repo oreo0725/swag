@@ -13,6 +13,7 @@ import (
 const (
 	searchDirFlag        = "dir"
 	excludeFlag          = "exclude"
+	handlerReleaseFlag   = "releaseInclude"
 	generalInfoFlag      = "generalInfo"
 	propertyStrategyFlag = "propertyStrategy"
 	outputFlag           = "output"
@@ -36,6 +37,10 @@ var initFlags = []cli.Flag{
 	&cli.StringFlag{
 		Name:  excludeFlag,
 		Usage: "exclude directories and files when searching, comma separated",
+	},
+	&cli.StringFlag{
+		Name:  handlerReleaseFlag,
+		Usage: "only include route handlers which contain specified tags",
 	},
 	&cli.StringFlag{
 		Name:  propertyStrategyFlag + ", p",
@@ -78,6 +83,7 @@ func initAction(c *cli.Context) error {
 	return gen.New().Build(&gen.Config{
 		SearchDir:          c.String(searchDirFlag),
 		Excludes:           c.String(excludeFlag),
+		HandlerRelease:     c.String(handlerReleaseFlag),
 		MainAPIFile:        c.String(generalInfoFlag),
 		PropNamingStrategy: strategy,
 		OutputDir:          c.String(outputFlag),

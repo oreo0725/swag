@@ -3,6 +3,7 @@ package swag
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chenhg5/collection"
 	"go/ast"
 	"go/build"
 	goparser "go/parser"
@@ -72,6 +73,8 @@ type Parser struct {
 
 	// excludes excludes dirs and files in SearchDir
 	excludes map[string]bool
+
+	handlerReleaseTag string
 }
 
 // New creates a new Parser with default properties.
@@ -122,6 +125,16 @@ func SetExcludedDirsAndFiles(excludes string) func(*Parser) {
 				f = filepath.Clean(f)
 				p.excludes[f] = true
 			}
+		}
+	}
+}
+
+func SetExcludedHandlerTags(releaseTag string) func(*Parser) {
+	return func(p *Parser) {
+		f := strings.TrimSpace(releaseTag)
+		if f != "" {
+			f = filepath.Clean(f)
+			p.handlerReleaseTag = f
 		}
 	}
 }
@@ -494,6 +507,11 @@ func (parser *Parser) ParseRouterAPIInfo(fileName string, astFile *ast.File) err
 				}
 				var pathItem spec.PathItem
 				var ok bool
+
+				if parser.handlerReleaseTag != "" &&
+					len(operation.ReleaseTags) > 0 && !collection.Collect(operation.ReleaseTags).Contains(parser.handlerReleaseTag) {
+					continue
+				}
 
 				if pathItem, ok = parser.swagger.Paths.Paths[operation.Path]; !ok {
 					pathItem = spec.PathItem{}
